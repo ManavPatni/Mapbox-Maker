@@ -7,13 +7,87 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
+    <com.mapbox.maps.MapView
+        android:id="@+id/mapView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button"
+        app:mapbox_cameraBearing="0.0"
+        app:mapbox_cameraPitch="0.0"
+        app:mapbox_cameraTargetLat="39.5"
+        app:mapbox_cameraTargetLng="-98.0"
+        app:mapbox_cameraZoom="2.0"
+        android:layout_marginTop="@dimen/_80sdp"/>
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Show Themes"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Marker"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/button" />
+
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/_10sdp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone">
+
+        <RadioButton
+            android:id="@+id/rb_standard"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Standard" />
+
+        <RadioButton
+            android:id="@+id/rb_streets"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Streets" />
+
+        <RadioButton
+            android:id="@+id/rb_satellite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Satellite" />
+
+        <RadioButton
+            android:id="@+id/rb_hybrid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Satellite Streets" />
+
+        <RadioButton
+            android:id="@+id/rb_light"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Light" />
+
+        <RadioButton
+            android:id="@+id/rb_dark"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dark" />
+
+    </RadioGroup>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

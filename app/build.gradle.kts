@@ -33,6 +33,11 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
+    buildFeatures {
+        viewBinding = true
+    }
+
 }
 
 dependencies {
@@ -48,4 +53,8 @@ dependencies {
 
     //Mapbox
     implementation("com.mapbox.maps:android:11.2.0")
+
+    //SDP & SSP-auto sizing
+    implementation("com.intuit.sdp:sdp-android:1.1.0")
+    runtimeOnly("com.intuit.ssp:ssp-android:1.1.0")
 }
