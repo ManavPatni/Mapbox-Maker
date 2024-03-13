@@ -232,7 +232,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener{
             enabled = true
             locationPuck = LocationPuck2D(
                 bearingImage = ImageHolder.from(R.drawable.ic_pin),
-                shadowImage = ImageHolder.from(R.drawable.ic_launcher_background),
                 scaleExpression = interpolate {
                     linear()
                     zoom()
