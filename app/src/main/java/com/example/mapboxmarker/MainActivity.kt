@@ -16,14 +16,22 @@ import androidx.appcompat.content.res.AppCompatResources
 import com.example.mapboxmarker.databinding.ActivityMainBinding
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
+import com.mapbox.android.gestures.MoveGestureDetector
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
+import com.mapbox.maps.ImageHolder
 import com.mapbox.maps.Style
+import com.mapbox.maps.extension.style.expressions.generated.Expression.Companion.interpolate
+import com.mapbox.maps.plugin.LocationPuck2D
+import com.mapbox.maps.plugin.PuckBearing
 import com.mapbox.maps.plugin.annotation.annotations
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
+import com.mapbox.maps.plugin.gestures.OnMoveListener
 import com.mapbox.maps.plugin.gestures.gestures
+import com.mapbox.maps.plugin.locationcomponent.OnIndicatorBearingChangedListener
 import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListener
+import com.mapbox.maps.plugin.locationcomponent.location
 
 
 class MainActivity : AppCompatActivity(), PermissionsListener{
@@ -35,6 +43,27 @@ class MainActivity : AppCompatActivity(), PermissionsListener{
     private lateinit var permissionsManager: PermissionsManager
 
 
+    private val onIndicatorBearingChangedListener = OnIndicatorBearingChangedListener {
+        binding.mapView.mapboxMap.setCamera(CameraOptions.Builder().bearing(it).build())
+    }
+
+    private val onIndicatorPositionChangedListener = OnIndicatorPositionChangedListener {
+        binding.mapView.mapboxMap.setCamera(CameraOptions.Builder().center(it).build())
+        binding.mapView.gestures.focalPoint = binding.mapView.mapboxMap.pixelForCoordinate(it)
+    }
+
+    private val onMoveListener = object : OnMoveListener {
+        override fun onMoveBegin(detector: MoveGestureDetector) {
+            onCameraTrackingDismissed()
+        }
+
+        override fun onMove(detector: MoveGestureDetector): Boolean {
+            return false
+        }
+
+        override fun onMoveEnd(detector: MoveGestureDetector) {}
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -45,12 +74,10 @@ class MainActivity : AppCompatActivity(), PermissionsListener{
         checkPermission()
         changeTheme(Style.STANDARD)
 
-        binding.button.setOnClickListener {
+        binding.tvLayers.setOnClickListener {
             binding.mapView.visibility = View.INVISIBLE
             binding.radioGroup.visibility = View.VISIBLE
         }
-
-        binding.button2.setOnClickListener { showAddMarkerDialog() }
 
         binding.radioGroup.setOnCheckedChangeListener { group, checkedId ->
             when (checkedId) {
@@ -62,6 +89,20 @@ class MainActivity : AppCompatActivity(), PermissionsListener{
                 R.id.rb_dark -> changeTheme(Style.DARK)
                 else -> changeTheme(Style.STANDARD)
             }
+        }
+
+        binding.bottomNavigationView.setOnItemSelectedListener {
+            when (it.toString()) {
+                "Home" -> {
+                    //home
+                }
+                "Add Marker" -> {
+                    showAddMarkerDialog()
+                }
+                "Profile" -> {
+                    //startActivity(Intent(this,Profile::class.java))
+                }}
+            return@setOnItemSelectedListener true
         }
 
     }
@@ -95,6 +136,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener{
     override fun onPermissionResult(granted: Boolean) {
         if (granted) {
             //enableLocationComponent()
+            onMapReady()
         } else {
             Toast.makeText(this,"Could not center the map..",Toast.LENGTH_SHORT).show()
         }
@@ -162,6 +204,69 @@ class MainActivity : AppCompatActivity(), PermissionsListener{
             drawable.draw(canvas)
             bitmap
         }
+    }
+
+    private fun onMapReady() {
+        binding.mapView.mapboxMap.setCamera(
+            CameraOptions.Builder()
+                .zoom(14.0)
+                .build()
+        )
+        binding.mapView.mapboxMap.loadStyle(
+            Style.STANDARD
+        ) {
+            initLocationComponent()
+            setupGesturesListener()
+        }
+    }
+
+    private fun setupGesturesListener() {
+        binding.mapView.gestures.addOnMoveListener(onMoveListener)
+    }
+
+    private fun initLocationComponent() {
+        val locationComponentPlugin = binding.mapView.location
+        locationComponentPlugin.updateSettings {
+            puckBearing = PuckBearing.COURSE
+            puckBearingEnabled = true
+            enabled = true
+            locationPuck = LocationPuck2D(
+                bearingImage = ImageHolder.from(R.drawable.ic_pin),
+                shadowImage = ImageHolder.from(R.drawable.ic_launcher_background),
+                scaleExpression = interpolate {
+                    linear()
+                    zoom()
+                    stop {
+                        literal(0.0)
+                        literal(0.6)
+                    }
+                    stop {
+                        literal(20.0)
+                        literal(1.0)
+                    }
+                }.toJson()
+            )
+        }
+        locationComponentPlugin.addOnIndicatorPositionChangedListener(onIndicatorPositionChangedListener)
+        locationComponentPlugin.addOnIndicatorBearingChangedListener(onIndicatorBearingChangedListener)
+    }
+
+    private fun onCameraTrackingDismissed() {
+        Toast.makeText(this, "onCameraTrackingDismissed", Toast.LENGTH_SHORT).show()
+        binding.mapView.location
+            .removeOnIndicatorPositionChangedListener(onIndicatorPositionChangedListener)
+        binding.mapView.location
+            .removeOnIndicatorBearingChangedListener(onIndicatorBearingChangedListener)
+        binding.mapView.gestures.removeOnMoveListener(onMoveListener)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        binding.mapView.location
+            .removeOnIndicatorBearingChangedListener(onIndicatorBearingChangedListener)
+        binding.mapView.location
+            .removeOnIndicatorPositionChangedListener(onIndicatorPositionChangedListener)
+        binding.mapView.gestures.removeOnMoveListener(onMoveListener)
     }
 
 }

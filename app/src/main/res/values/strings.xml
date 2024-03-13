@@ -1,4 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Mapbox Marker</string>
+    <string name="layers">Layers</string>
     <string name="mapbox_access_token" translatable="false" tools:ignore="UnusedResources">pk.eyJ1IjoibWFuYXZwYXRuaSIsImEiOiJjbHRwd29zdjEwcmJqMmlvMzhoemhyeTI3In0.1woRCMOKTsuL5vIT7SponA</string>
 </resources>
